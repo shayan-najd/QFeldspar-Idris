@@ -3,7 +3,7 @@ module C
 import Prelude
 import Types
 import Data.List
-import Pretty
+import Text.PrettyPrint.Leijen
 
 VarC : Type
 VarC = (String , Typ)

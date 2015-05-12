@@ -1,0 +1,3 @@
+[submodule "wl-pprint"]
+	path = wl-pprint
+	url = https://github.com/shayan-najd/wl-pprint.git
