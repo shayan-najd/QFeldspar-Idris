@@ -41,13 +41,13 @@ mutual
 ex1 : Float
 ex1 = eval [] (Cnd (ConB True) (ConF 1.1) (ConF 42.0))
 
-{-
-boolElim : Exp g Bol -> Lazy $ Exp g a -> Lazy $ Exp g a -> Lazy $ Exp g a
-boolElim l m n = Cnd l m n
+
+ifThenElse : Exp g Bol -> Exp g a -> Exp g a -> Exp g a
+ifThenElse l m n = Cnd l m n
 
 ex2 : Float
 ex2 = eval [] (if ConB True then ConF 1.1 else ConF 42.0)
--}
+
 
 implicit
 Bits32toWrd : Bits32 -> Exp g Wrd
@@ -61,5 +61,6 @@ implicit
 FloattoFlt : Float -> Exp g Flt
 FloattoFlt = ConF
 
-ex2 : Float
-ex2 = eval [] (Cnd True 1.1 42.0)
+ex3 : Float
+ex3 = eval [] (Cnd True 1.1 42.0)
+
