@@ -12,7 +12,7 @@ ex2 = eval [] (if ConB True then ConF 1.1 else ConF 42.0)
 -}
 
 ex2 : Float
-ex2 = eval [] (Cnd True 1.1 42.0)
+ex2 = eval [] (if True then 1.1 else 42.0)
 
 ex3 : Exp [Flt] Flt
 ex3 = Whl (Ltd (AppV Zro []) 20.0)

@@ -63,6 +63,9 @@ True = ConB True
 False : Exp g Bol
 False = ConB False
 
+ifThenElse : Exp g Bol -> Exp g a -> Exp g a -> Exp g a
+ifThenElse = Cnd
+
 {-
 (?) :: Syn a => Dp Bol -> (a , a) -> a
 c ? (t , e) = frmExp (Cnd c (toExp t) (toExp e))
