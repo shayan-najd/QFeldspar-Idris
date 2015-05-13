@@ -1,8 +1,11 @@
 module MiniFeldspar
 
-import Expressions
-import Types
-import All
+import public Expressions
+import public Types
+import public All
+import public Data.Complex
+import public Evaluation
+import public Compilation
 
 Prelude : List Typ
 Prelude = [Cmx `Arr` Flt,
@@ -24,7 +27,6 @@ Prelude = [Cmx `Arr` Flt,
 Dp : Typ -> Type
 Dp = Exp Prelude
 
-
 {-
 trmEql ::  HasSin TFG.Typ a => Dp a -> Dp a -> MP.Bool
 trmEql  = FMWS.eql
@@ -34,7 +36,8 @@ trmEqlF :: (HasSin TFG.Typ a , HasSin TFG.Typ b) =>
 trmEqlF = FMWS.eqlF
 -}
 
-conF : Float -> Dp Flt
+implicit
+conF : Float -> Exp g Flt
 conF = ConF
 
 {-
@@ -54,11 +57,11 @@ toExpF f = toExp . f . frmExp
 frmExpF f = frmExp . f . toExp
 -}
 
-TrueE : Exp g Bol
-TrueE = ConB True
+True : Exp g Bol
+True = ConB True
 
-FalseE : Exp g Bol
-FalseE = ConB False
+False : Exp g Bol
+False = ConB False
 
 {-
 (?) :: Syn a => Dp Bol -> (a , a) -> a
@@ -77,10 +80,10 @@ instance (Syn a , Syn b) => Syn (a , b) where
 --mkArr :: Dp Wrd -> (Dp Wrd -> Dp t) -> Dp (Ary t)
 --mkArr = Ary
 
-lnArr  : Dp (Ary t) -> Dp Wrd
+lnArr  : Exp g (Ary a) -> Exp g Wrd
 lnArr = Len
 
-ixArr : Dp (Ary t) -> Dp Wrd -> Dp t
+ixArr : Exp g (Ary a) -> Exp g Wrd -> Exp g a
 ixArr = Ind
 
 data Vec' t = MkVec (Dp Wrd) (Dp Wrd -> t)
@@ -96,7 +99,7 @@ instance Syn a => Syn (Vec' a) where
 -- What are pattern synonyms in Idris
 -- pattern x :+. y = Cmx x y
 
-save : Dp a -> Dp a
+save : Exp g a -> Exp g a
 save = Mem
 
 {-
@@ -217,54 +220,53 @@ share :: (Syn tl , Syn tb) =>
 share e f = frmExp (Let (toExp e) (toExp . f . frmExp))
 -}
 
-realPartE : Dp Cmx -> Dp Flt
-realPartE e = AppV Zro [e]
+realPart : Dp Cmx -> Dp Flt
+realPart e = AppV Zro [e]
 
-imagPartE : Dp (Cmx) -> Dp Flt
-imagPartE e = AppV (Suc Zro) [e]
+imagPart : Dp (Cmx) -> Dp Flt
+imagPart e = AppV (Suc Zro) [e]
 
-divE : Dp Wrd -> Dp Wrd -> Dp Wrd
-divE e1 e2 = AppV (Suc $ Suc Zro) [e1,e2]
+div : Dp Wrd -> Dp Wrd -> Dp Wrd
+div e1 e2 = AppV (Suc $ Suc Zro) [e1,e2]
 
 -- Different From Haskell
-infixl 7 /.
-(/.) : Dp Flt -> Dp Flt -> Dp Flt
-e1 /. e2 = AppV (Suc $ Suc $ Suc Zro) [e1,e2]
+-- infixl 7 /
+(/) : Dp Flt -> Dp Flt -> Dp Flt
+e1 / e2 = AppV (Suc $ Suc $ Suc Zro) [e1,e2]
 
--- I cannot steal this
---  fromRational r = ConF (fromRational r)
+-- no fromRational in Idris
 
-infixl 7 .&..
-(.&..) : Dp Wrd -> Dp Wrd -> Dp Wrd
-e1 .&.. e2 = AppV (Suc $ Suc $ Suc $ Suc Zro) [e1,e2]
+infixl 7 .&.
+(.&.) : Dp Wrd -> Dp Wrd -> Dp Wrd
+e1 .&. e2 = AppV (Suc $ Suc $ Suc $ Suc Zro) [e1,e2]
 
-infixl 7 .|..
-(.|..)  : Dp Wrd -> Dp Wrd -> Dp Wrd
-e1 .|.. e2 = AppV (Suc $ Suc $ Suc $ Suc $ Suc Zro) [e1,e2]
+infixl 7 .|.
+(.|.)  : Dp Wrd -> Dp Wrd -> Dp Wrd
+e1 .|. e2 = AppV (Suc $ Suc $ Suc $ Suc $ Suc Zro) [e1,e2]
 
-xorE : Dp Wrd -> Dp Wrd -> Dp Wrd
-xorE e1 e2 = AppV (Suc $ Suc $ Suc $ Suc $ Suc $ Suc Zro) [e1,e2]
+xor : Dp Wrd -> Dp Wrd -> Dp Wrd
+xor e1 e2 = AppV (Suc $ Suc $ Suc $ Suc $ Suc $ Suc Zro) [e1,e2]
 
-shfRgtE : Dp Wrd -> Dp Wrd -> Dp Wrd
-shfRgtE e1 e2 = AppV (Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc Zro) [e1,e2]
+shfRgt : Dp Wrd -> Dp Wrd -> Dp Wrd
+shfRgt e1 e2 = AppV (Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc Zro) [e1,e2]
 
-shfLftE : Dp Wrd -> Dp Wrd -> Dp Wrd
-shfLftE e1 e2 = AppV (Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc Zro) [e1,e2]
+shfLft : Dp Wrd -> Dp Wrd -> Dp Wrd
+shfLft e1 e2 = AppV (Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc Zro) [e1,e2]
 
-complementE : Dp Wrd -> Dp Wrd
-complementE e = AppV (Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc Zro) [e]
+complement : Dp Wrd -> Dp Wrd
+complement e = AppV (Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc Zro) [e]
 
-i2fE : Dp Wrd -> Dp Flt
-i2fE e = AppV (Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc Zro) [e]
+i2f : Dp Wrd -> Dp Flt
+i2f e = AppV (Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc Zro) [e]
 
-cisE : Dp Flt -> Dp Cmx
-cisE e = AppV (Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc Zro) [e]
+cis : Dp Flt -> Dp Cmx
+cis e = AppV (Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc Zro) [e]
 
-ilog2E : Dp Wrd -> Dp Wrd
-ilog2E e = AppV (Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc Zro) [e]
+ilog2 : Dp Wrd -> Dp Wrd
+ilog2 e = AppV (Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc Zro) [e]
 
-sqrtE : Dp Flt -> Dp Flt
-sqrtE e = AppV (Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc Zro) [e]
+sqrt : Dp Flt -> Dp Flt
+sqrt e = AppV (Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc Zro) [e]
 
-hashTableE : Dp (Ary Wrd)
-hashTableE = AppV (Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc Zro) []
+hashTable : Dp (Ary Wrd)
+hashTable = AppV (Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc $ Suc Zro) []

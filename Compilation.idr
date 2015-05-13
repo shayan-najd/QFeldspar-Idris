@@ -5,7 +5,7 @@ import Control.Monad.State
 import All
 import C
 import Expressions
-import Pretty
+import Text.PrettyPrint.Leijen
 
 -- a monad for compilation process which carries
 --  (a) a number used for generating fresh names
@@ -219,11 +219,3 @@ compileWith g t e = let c = runCompileMonad t (compileTerm (g , e)) "prog" 0
                     in  "#include \"header.h\"\n\n" ++
                         genStructs (nub (collectTypes e)) ++ "\n" ++
                          (show . printFunC) c
-
-ex1 : Exp [Flt] Flt
-ex1 = Whl (Ltd (AppV Zro Nil) (ConF 20.0))
-          (Add (AppV Zro Nil) (ConF 1.0))
-          (AppV Zro Nil)
-
-c1 : String
-c1 = compileWith Nil Flt ex1

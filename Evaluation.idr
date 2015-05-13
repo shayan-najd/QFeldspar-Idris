@@ -7,7 +7,7 @@ import Values
 
 mutual
  evalEnv : All getType g -> All (Exp g) g' -> All getType g'
- evalEnv g xs = mapAll (\ m => eval g m) xs
+ evalEnv g xs = map (eval g) xs
 
  evalVar : All getType  g -> Var' g a -> getType a
  evalVar g x = lookup x g
@@ -37,29 +37,3 @@ mutual
  eval g (Eql l m)   = eql  (eval g l) (eval g m)
  eval g (Ltd l m)   = ltd  (eval g l) (eval g m)
  eval g (Mem l)     = mem  (eval g l)
-
-ex1 : Float
-ex1 = eval [] (Cnd (ConB True) (ConF 1.1) (ConF 42.0))
-
-{-
-boolElim : Exp g Bol -> Lazy $ Exp g a -> Lazy $ Exp g a -> Lazy $ Exp g a
-boolElim l m n = Cnd l m n
-
-ex2 : Float
-ex2 = eval [] (if ConB True then ConF 1.1 else ConF 42.0)
--}
-
-implicit
-Bits32toWrd : Bits32 -> Exp g Wrd
-Bits32toWrd = ConI
-
-implicit
-BooltoBol : Bool -> Exp g Bol
-BooltoBol = ConB
-
-implicit
-FloattoFlt : Float -> Exp g Flt
-FloattoFlt = ConF
-
-ex2 : Float
-ex2 = eval [] (Cnd True 1.1 42.0)
