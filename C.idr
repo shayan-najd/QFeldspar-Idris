@@ -44,47 +44,47 @@ instance Eq Typ where
   Cmx         == _             = False
 
 commaCat : List Doc -> Doc
-commaCat ds = foldl1 (<>) (intersperse (comma<>space) ds)
+commaCat ds = foldl1 (|+|) (intersperse (comma |+| space) ds)
 
 partial
 printType : Typ -> Doc
 printType Wrd        = text "Wrd"
 printType Bol        = text "Bol"
 printType Flt        = text "Flt"
-printType (Tpl t t') = text "Tpl" <> printType t <> printType t'
-printType (Ary t)    = text "Ary" <> printType t
+printType (Tpl t t') = text "Tpl" |+| printType t |+| printType t'
+printType (Ary t)    = text "Ary" |+| printType t
 printType Cmx        = text "Cmx"
 
 printExp : Exp -> Doc
 printExp (Var x)    = text x
 printExp (Wrd x)    = text (show x ++ "u")
 printExp (Flt x)    = text (show x ++ "f")
-printExp (App x xs) = text x <+> parens (commaCat (map printExp xs))
+printExp (App x xs) = text x |++| parens (commaCat (map printExp xs))
 
 printStmt : Stmt -> Doc
-printStmt (If e1 xs ys) = text "if" <+> parens (printExp e1)
-  <$$> (lbrace
-   <$$> nest 2 (vcat (map printStmt xs))
-   <$$> rbrace)
-  <$$> text "else"
-  <$$> (lbrace
-   <$$> nest 2 (vcat (map printStmt ys))
-   <$$> rbrace)
-printStmt (Whl e ss) = text "while" <+> parens (printExp e)
-  <$$> (lbrace
-   <$$> nest 2 (vcat (map printStmt ss))
-   <$$> rbrace)
-printStmt (Assign x e1) = text x <+> text "=" <+> ((printExp e1) <> semi)
-printStmt (Declare (x , t)) =  printType t <+> (text x <> semi)
-printStmt (Return e1) = text "return" <+> (printExp e1 <> semi)
+printStmt (If e1 xs ys) = text "if" |++| parens (printExp e1)
+  |$$| (lbrace
+   |$$| nest 2 (vcat (map printStmt xs))
+   |$$| rbrace)
+  |$$| text "else"
+  |$$| (lbrace
+   |$$| nest 2 (vcat (map printStmt ys))
+   |$$| rbrace)
+printStmt (Whl e ss) = text "while" |++| parens (printExp e)
+  |$$| (lbrace
+   |$$| nest 2 (vcat (map printStmt ss))
+   |$$| rbrace)
+printStmt (Assign x e1) = text x |++| text "=" |++| ((printExp e1) |+| semi)
+printStmt (Declare (x , t)) =  printType t |++| (text x |+| semi)
+printStmt (Return e1) = text "return" |++| (printExp e1 |+| semi)
 
 printVar : VarC -> Doc
-printVar (v,t) = printType t <+> text v
+printVar (v,t) = printType t |++| text v
 
 printFunC : FunC -> Doc
 printFunC (MkFunC ty name vs ss) =
-  printType ty <+> text name
-  <+> parens (commaCat (map printVar vs) )
-  <$$> (lbrace
-        <$$> nest 2 (vcat (map printStmt ss))
-        <$$> rbrace)
+  printType ty |++| text name
+  |++| parens (commaCat (map printVar vs) )
+  |$$| (lbrace
+        |$$| nest 2 (vcat (map printStmt ss))
+        |$$| rbrace)
