@@ -57,9 +57,10 @@ printType Cmx        = text "Cmx"
 
 printExp : Exp -> Doc
 printExp (Var x)    = text x
-printExp (Wrd x)    = text (show x ++ "u")
+printExp (Wrd x)    = text ((show (prim__zextB32_BigInt x)) ++ "u")
 printExp (Flt x)    = text (show x ++ "f")
 printExp (App x xs) = text x |++| parens (commaCat (map printExp xs))
+
 
 printStmt : Stmt -> Doc
 printStmt (If e1 xs ys) = text "if" |++| parens (printExp e1)
