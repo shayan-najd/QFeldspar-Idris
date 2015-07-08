@@ -92,7 +92,7 @@ mutual
                                    return (App "snd" [el] , sl)
  compileExp {a=Ary b} g (Ary l f)
                            = do xl <- newVar Wrd
-                                xa <- newVar b
+                                xa <- newVar (Ary b)
                                 xi <- newVar Wrd
                                 (el , sl) <- compileExp        g  l
                                 (ef , sf) <- compileExp (xi :: g) f
