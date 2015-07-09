@@ -215,7 +215,30 @@ instance Compilable (All (const String) g , Exp (a :: g) b) where
 -- typing signature of the language primitives
 compileWith : (Compilable (All (const String) g , a), TypeCollectable a) =>
               All (const String) g -> Typ -> a -> String
-compileWith g t e = let c = runCompileMonad t (compileTerm (g , e)) "prog" 0
+compileWith g t e = let c = runCompileMonad t (compileTerm (g , e)) "func" 0
                     in  "#include \"header.h\"\n\n" ++
                         genStructs (nub (collectTypes e)) ++ "\n" ++
                          (show . printFunC) c
+
+makeIP : String -> String
+makeIP c = "#include\"ppm.h\"\n" ++
+           c ++
+           "\nint main(int argc, char *argv[])"++
+           "\n{"++
+           "\n  Image   imgIn = readImage(argv[1]);"++
+           "\n  AryWrd aryIn = newAry(Wrd,size(imgIn)); "++
+           "\n  for (unsigned int i = 0; i < size(imgIn); i++)"++
+           "\n    aryIn = setAry(aryIn , i , imgIn.data[i]);"++
+           "\n  AryWrd aryOut;"++
+           "\n  aryOut = func(aryIn);"++
+           "\n  unsigned int t;"++
+           "\n  sscanf(argv[3],\"%d\",&t);" ++
+           "\n  Image imgOut = {.sizeX = imgIn.sizeX, "++
+           "\n                  .sizeY = imgIn.sizeY,"++
+           "\n                  .type  = t,"++
+           "\n                  .data  = malloc(len(aryOut) * sizeof(unsigned int))}; "++
+           "\n  for(unsigned int i = 0; i < len(aryOut); i++)"++
+           "\n    imgOut.data[i] = ind(aryOut , i);"++
+           "\n  writeImage (argv[2] , imgOut);"++
+           "\n  return 0;"++
+           "\n}"

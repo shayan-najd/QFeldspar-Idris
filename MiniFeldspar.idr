@@ -27,6 +27,24 @@ Prelude = [Cmx `Arr` Flt,
 Dp : Typ -> Type
 Dp = Exp Prelude
 
+prelude : All (const String) Prelude
+prelude = "realPart" ::
+          "imagPart" ::
+          "divWrd"   ::
+          "divFlt"   ::
+          "andWrd"   ::
+          "orWrd"    ::
+          "xorWrd"   ::
+          "shrWrd"   ::
+          "shlWrd"   ::
+          "cmpWrd"   ::
+          "i2f"      ::
+          "cis"      ::
+          "ilog2"    ::
+          "sqrtFlt"  ::
+          "hshTbl"   ::
+          Nil
+
 {-
 trmEql ::  HasSin TFG.Typ a => Dp a -> Dp a -> MP.Bool
 trmEql  = FMWS.eql
