@@ -18,7 +18,6 @@ ipgrayC : String
 ipgrayC = makeIP (compileWith prelude (Ary Wrd) ipgray)
 
 main : IO ()
-main = do f <- fopen "ip" "w"
+main = do f <- fopen "ip.c" "w"
           fwrite f ipgrayC
-          fflush f
           closeFile f

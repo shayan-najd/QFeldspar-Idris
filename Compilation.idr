@@ -185,14 +185,16 @@ collectTypesExp {a = a}         (Mem l)     = a       :: collectTypesExp l
 -- Generates C structs for each instantiation of polymorphic datatypes
 genStructs : List Typ -> String
 genStructs ts = concat (
-                ["typedef struct {Wrd size; "++s++"* elems;} Ary"++s++";\n"
-                | Ary a <- ts,
-                  a /= Wrd,
-                  let s = show (printType a)] ++
-                ["typedef struct {"++sa++" fst; "++sb++" snd;} Tpl"++sa++sb++";\n"
-                | Tpl a b <- ts,
-                let sa = show (printType a),
-                let sb = show (printType b)])
+                [case t of
+                  Ary a   => if (a /= Wrd)
+                             then let s = show (printType a)
+                                   in "typedef struct {Wrd size; "++s++"* elems;} Ary"++s++";\n"
+                             else ""
+                  Tpl a b => let sa = show (printType a)
+                                 sb = show (printType b)
+                             in "typedef struct {"++sa++" fst; "++sb++" snd;} Tpl"++sa++sb++";\n"
+                  _       => ""
+                | t  <- ts])
 
 -- Type classes to provide uniform access to the compile functions
 
