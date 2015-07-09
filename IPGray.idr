@@ -16,3 +16,9 @@ ipgray = Ary (AppV (Suc $ Suc $ Suc Zro) [Len (AppV Zro []) , ConI 3])
 -- where {name} is the name of the file containing below string
 ipgrayC : String
 ipgrayC = makeIP (compileWith prelude (Ary Wrd) ipgray)
+
+main : IO ()
+main = do f <- fopen "ip" "w"
+          fwrite f ipgrayC
+          fflush f
+          closeFile f
